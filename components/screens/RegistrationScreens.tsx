@@ -9,6 +9,29 @@ interface RegisterProps {
   onFinish?: (data: any) => void;
 }
 
+const RegistrationProgressBar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
+  const steps = ['Validación', 'Datos', 'Seguridad', 'PIN'];
+  return (
+    <div className="px-8 mb-6">
+      <div className="flex justify-between mb-2">
+        {steps.map((step, i) => (
+          <span key={i} className={`text-[10px] font-bold uppercase tracking-wider ${i < currentStep ? 'text-indigo-600' : i === currentStep ? 'text-slate-900' : 'text-slate-300'}`}>
+            {step}
+          </span>
+        ))}
+      </div>
+      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
+        {[0, 1, 2, 3].map((i) => (
+          <div 
+            key={i} 
+            className={`h-full flex-1 transition-all duration-500 ${i < currentStep ? 'bg-indigo-600' : i === currentStep ? 'bg-indigo-400' : 'bg-transparent'} ${i < 3 ? 'border-r border-white/20' : ''}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // 0. Validation (Card + DNI)
 export const RegisterValidateScreen: React.FC<RegisterProps> = ({ changeView, onNext }) => {
   const [formData, setFormData] = useState({
@@ -34,7 +57,8 @@ export const RegisterValidateScreen: React.FC<RegisterProps> = ({ changeView, on
   return (
     <div className="flex flex-col h-full bg-white">
       <Header onBack={() => changeView(ViewState.LOGIN_METHODS)} />
-      <div className="px-8 pt-6 flex-1 flex flex-col">
+      <RegistrationProgressBar currentStep={0} />
+      <div className="px-8 pt-2 flex-1 flex flex-col">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Valida tu identidad</h1>
           <p className="text-slate-500">Ingresa tus datos bancarios para continuar</p>
@@ -118,7 +142,8 @@ export const RegisterPersonalScreen: React.FC<RegisterProps> = ({ changeView, on
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
       <Header onBack={() => changeView(ViewState.REGISTER_VALIDATE)} />
-      <div className="px-8 pt-6 flex-1 flex flex-col">
+      <RegistrationProgressBar currentStep={1} />
+      <div className="px-8 pt-2 flex-1 flex flex-col">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Crea tu cuenta</h1>
           <p className="text-slate-500">Ingresa tus datos personales para comenzar</p>
@@ -229,7 +254,8 @@ export const RegisterSecurityScreen: React.FC<RegisterProps> = ({ changeView, on
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
       <Header onBack={() => changeView(ViewState.REGISTER_PERSONAL)} />
-      <div className="px-8 pt-6 flex-1 flex flex-col">
+      <RegistrationProgressBar currentStep={2} />
+      <div className="px-8 pt-2 flex-1 flex flex-col">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Seguridad</h1>
           <p className="text-slate-500">Configura tus preguntas de recuperación</p>
@@ -308,7 +334,8 @@ export const RegisterPinScreen: React.FC<RegisterProps> = ({ changeView, onFinis
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
       <Header onBack={() => step === 'confirm' ? setStep('create') : changeView(ViewState.REGISTER_SECURITY)} />
-      <div className="px-8 pt-6 flex-1 flex flex-col items-center">
+      <RegistrationProgressBar currentStep={3} />
+      <div className="px-8 pt-2 flex-1 flex flex-col items-center">
         <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-8">
           <Lock className="w-10 h-10" />
         </div>
