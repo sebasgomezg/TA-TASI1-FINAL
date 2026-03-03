@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, PaymentDetails, UserContextType, Account, MovementItem } from '../../types';
-import { Header, Button } from '../ui/Shared';
+import { Header, Button, LoadingOverlay } from '../ui/Shared';
 import { Search, ChevronRight, Check, Zap, Droplet, Smartphone, LayoutGrid, Plus, ChevronDown, Tv, Phone, MessageCircle, Mail, Send, Copy, MoreHorizontal, X } from 'lucide-react';
 import { ServiceCompany, SubService } from '../../types';
 
@@ -208,6 +208,7 @@ export const PaymentBillSelectScreen: React.FC<PaymentProps> = ({
     const [selectedBills, setSelectedBills] = useState<string[]>([]);
     const [sourceAccount, setSourceAccount] = useState<Account>(user.accounts[0]);
     const [showAccountSelector, setShowAccountSelector] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     if (!selectedCompany || !selectedSubService) return null;
 
@@ -240,34 +241,41 @@ export const PaymentBillSelectScreen: React.FC<PaymentProps> = ({
         .reduce((sum, b) => sum + b.amount, 0);
 
     const handleContinue = () => {
-        const paymentDetails = {
-            serviceName: `${selectedCompany.name} - ${identifier}`,
-            amount: totalAmount.toFixed(2),
-            operationId: 'OP-' + Math.random().toString().slice(2, 10),
-            companyId: selectedCompany.id,
-            subServiceId: selectedSubService.id
-        };
-        setPayment(paymentDetails);
+        setIsLoading(true);
+        
+        // Simulate payment processing
+        setTimeout(() => {
+            setIsLoading(false);
+            const paymentDetails = {
+                serviceName: `${selectedCompany.name} - ${identifier}`,
+                amount: totalAmount.toFixed(2),
+                operationId: 'OP-' + Math.random().toString().slice(2, 10),
+                companyId: selectedCompany.id,
+                subServiceId: selectedSubService.id
+            };
+            setPayment(paymentDetails);
 
-        if (setPaidBillIds) {
-            setPaidBillIds(prev => [...prev, ...selectedBills]);
-        }
-        
-        if (onConfirm) {
-            onConfirm({
-                title: 'Pago de servicio',
-                subtitle: `${selectedCompany.name} - ${identifier}`,
-                amount: -totalAmount,
-                type: 'payment',
-                account: sourceAccount.name
-            });
-        }
-        
-        changeView(ViewState.PAYMENT_SUCCESS);
+            if (setPaidBillIds) {
+                setPaidBillIds(prev => [...prev, ...selectedBills]);
+            }
+            
+            if (onConfirm) {
+                onConfirm({
+                    title: 'Pago de servicio',
+                    subtitle: `${selectedCompany.name} - ${identifier}`,
+                    amount: -totalAmount,
+                    type: 'payment',
+                    account: sourceAccount.name
+                });
+            }
+            
+            changeView(ViewState.PAYMENT_SUCCESS);
+        }, 3000);
     };
 
     return (
         <div className="flex flex-col h-full bg-slate-50 relative">
+             {isLoading && <LoadingOverlay message="Procesando pago..." />}
              <Header title={`Pagar ${selectedCompany.name}`} onBack={() => changeView(ViewState.PAYMENT_SERVICE_SELECT)} />
              
              <div className="px-6 py-4 flex-1 overflow-y-auto no-scrollbar pb-40">

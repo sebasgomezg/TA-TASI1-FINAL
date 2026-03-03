@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState } from '../../types';
-import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard } from '../ui/Shared';
+import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard, LoadingOverlay } from '../ui/Shared';
 import { CreditCard, Hash, Smartphone, Lock, Check, Mail, X, ArrowRight, ShieldCheck, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -265,22 +265,28 @@ export const PinEntryScreen: React.FC<ScreenProps> = ({ changeView, onPinSubmit,
   const [pin, setPin] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLocked, setIsLocked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePress = (val: string) => {
-    if (pin.length < 6 && !isLocked) {
+    if (pin.length < 6 && !isLocked && !isLoading) {
       const newPin = pin + val;
       setPin(newPin);
       setError(null);
       
       if (newPin.length === 6) {
-        if (onPinSubmit) {
-          const result = onPinSubmit(newPin);
-          if (result?.error) {
-            setError(result.error);
-            setPin('');
-            if (result.locked) setIsLocked(true);
+        setIsLoading(true);
+        // Simulate login verification
+        setTimeout(() => {
+          setIsLoading(false);
+          if (onPinSubmit) {
+            const result = onPinSubmit(newPin);
+            if (result?.error) {
+              setError(result.error);
+              setPin('');
+              if (result.locked) setIsLocked(true);
+            }
           }
-        }
+        }, 1500);
       }
     }
   };
@@ -299,6 +305,7 @@ export const PinEntryScreen: React.FC<ScreenProps> = ({ changeView, onPinSubmit,
 
   return (
     <div className="flex flex-col h-full bg-white relative">
+      {isLoading && <LoadingOverlay message="Iniciando sesión..." />}
       <Header onBack={() => {
         // If we have a temporary login identifier (not from remembered data), 
         // go back to the specific login screen (Card or DNI)

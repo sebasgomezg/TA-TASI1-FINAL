@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewState, UserContextType, MovementItem } from '../../types';
 import { StatusBar, ActionCard } from '../ui/Shared';
-import { Plus, Calendar, List, User, LogOut, Plane, ChevronRight, CreditCard, Users, Smartphone, LayoutGrid, ArrowDownLeft, ArrowUpRight, Zap, ArrowRightLeft } from 'lucide-react';
+import { Plus, Calendar, List, User, LogOut, Plane, ChevronRight, CreditCard, Users, Smartphone, LayoutGrid, ArrowDownLeft, ArrowUpRight, Zap, ArrowRightLeft, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface DashboardProps {
@@ -15,6 +15,14 @@ interface DashboardProps {
 
 export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, setMovement, setPreviousView, setSelectedAccount, movements }) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showInfo, setShowInfo] = useState(() => {
+    const saved = localStorage.getItem('dashboard_show_info');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dashboard_show_info', JSON.stringify(showInfo));
+  }, [showInfo]);
 
   // Helper to navigate to detail
   const handleMovementClick = (movement: MovementItem) => {
@@ -79,6 +87,17 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
       </div>
 
       <div className="px-6 -mt-8 flex-1 overflow-y-auto no-scrollbar pb-6">
+        {/* Eye Toggle Closer to Accounts */}
+        <div className="flex justify-end mb-2 pr-2">
+            <button 
+              onClick={() => setShowInfo(!showInfo)}
+              className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors cursor-pointer"
+              title={showInfo ? "Ocultar información" : "Mostrar información"}
+            >
+              {showInfo ? <Eye className="w-5 h-5 text-indigo-600" /> : <EyeOff className="w-5 h-5 text-slate-400" />}
+            </button>
+        </div>
+
         {/* Accounts Sliding Selector */}
         <div className="relative overflow-hidden -mx-6 px-6 mb-6">
           <motion.div 
@@ -98,10 +117,14 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
               >
                   <div className="mb-2">
                       <span className="text-slate-500 font-bold text-sm">{acc.name}</span>
-                      <p className="text-slate-400 text-xs">**** {acc.number.slice(-4)}</p>
+                      <p className="text-slate-400 text-xs">
+                        {showInfo ? acc.number.match(/.{1,4}/g)?.join(' ') : `**** ${acc.number.slice(-4)}`}
+                      </p>
                   </div>
                   <div className="flex items-baseline gap-1">
-                      <span className="text-slate-900 text-3xl font-extrabold">S/ {acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                      <span className="text-slate-900 text-3xl font-extrabold">
+                        {showInfo ? `S/ ${acc.balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}` : 'S/ *****'}
+                      </span>
                   </div>
                   <p className="text-slate-400 text-sm">Saldo disponible</p>
               </motion.div>

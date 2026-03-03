@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, UserContextType } from '../../types';
-import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard } from '../ui/Shared';
+import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard, LoadingOverlay } from '../ui/Shared';
 import { CreditCard, Hash, Smartphone, Lock, Check, Mail, X, ArrowRight, ShieldCheck, ChevronRight, MessageCircle, Send, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -224,6 +224,7 @@ export const ForgotPinNewScreen: React.FC<RecoveryProps> = ({ changeView, onUpda
   const [confirmPin, setConfirmPin] = useState('');
   const [step, setStep] = useState<'create' | 'confirm'>('create');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePress = (val: string) => {
     if (step === 'create') {
@@ -244,7 +245,12 @@ export const ForgotPinNewScreen: React.FC<RecoveryProps> = ({ changeView, onUpda
       }
     } else {
       if (pin === confirmPin) {
-        if (onUpdatePin) onUpdatePin(pin);
+        setIsLoading(true);
+        // Simulate PIN update
+        setTimeout(() => {
+          setIsLoading(false);
+          if (onUpdatePin) onUpdatePin(pin);
+        }, 2000);
       } else {
         setError('Los PIN no coinciden. Intenta de nuevo.');
         setConfirmPin('');
@@ -253,7 +259,8 @@ export const ForgotPinNewScreen: React.FC<RecoveryProps> = ({ changeView, onUpda
   };
 
   return (
-    <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
+    <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar relative">
+      {isLoading && <LoadingOverlay message="Actualizando PIN..." />}
       <Header onBack={() => step === 'confirm' ? setStep('create') : changeView(ViewState.FORGOT_PIN_VERIFY)} />
       <div className="px-8 pt-6 flex-1 flex flex-col items-center">
         <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-8">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ViewState, UserContextType } from '../../types';
 import { Mail, Smartphone, Home, Eye, EyeOff, Pencil, ChevronRight, ArrowLeft, X, Save, AlertCircle } from 'lucide-react';
-import { Button, InputField } from '../ui/Shared';
+import { Button, InputField, LoadingOverlay } from '../ui/Shared';
 
 interface ProfileProps {
   changeView: (view: ViewState) => void;
@@ -14,6 +14,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
   const [editingField, setEditingField] = useState<keyof UserContextType | null>(null);
   const [tempValue, setTempValue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const initials = user.name.slice(0, 2).toUpperCase();
   const firstName = user.name;
@@ -89,14 +90,20 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
               return;
           }
           
-          onUpdateUser(editingField, tempValue);
-          setEditingField(null);
-          setError(null);
+          setIsLoading(true);
+          // Simulate API call
+          setTimeout(() => {
+              setIsLoading(false);
+              onUpdateUser(editingField, tempValue);
+              setEditingField(null);
+              setError(null);
+          }, 1500);
       }
   };
 
   return (
     <div className="flex flex-col h-full bg-white relative">
+        {isLoading && <LoadingOverlay message="Guardando cambios..." />}
         {/* Customized Header */}
         <div className="bg-indigo-600 text-white pt-12 pb-4 shadow-sm">
             <div className="flex items-center gap-4 px-6">

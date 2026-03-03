@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, TransactionDetails, UserContextType, Account, MovementItem, Favorite } from '../../types';
-import { Header, Button, InputField, ActionCard } from '../ui/Shared';
+import { Header, Button, InputField, ActionCard, LoadingOverlay } from '../ui/Shared';
 import { User, CreditCard, ChevronRight, Check, Info, ChevronDown, Users, Loader2, AlertCircle, MessageCircle, Mail, Send, Copy, MoreHorizontal, X } from 'lucide-react';
 
 interface TransferProps {
@@ -472,6 +472,7 @@ export const TransferFormScreen: React.FC<TransferProps> = ({ changeView, transa
 
 // 3. Confirm
 export const TransferConfirmScreen: React.FC<TransferProps> = ({ changeView, transaction, user, onConfirm }) => {
+    const [isLoading, setIsLoading] = useState(false);
     if (!transaction) return null;
 
     const initials = transaction.recipientName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -481,20 +482,27 @@ export const TransferConfirmScreen: React.FC<TransferProps> = ({ changeView, tra
     const sourceAccount = transaction.sourceAccount || user.accounts[0];
 
     const handleConfirm = () => {
-        if (onConfirm) {
-            onConfirm({
-                title: 'Transferencia enviada',
-                subtitle: transaction.recipientName,
-                amount: -parseFloat(transaction.amount),
-                type: 'transfer_out',
-                account: sourceAccount.name
-            });
-        }
-        changeView(ViewState.TRANSFER_SUCCESS);
+        setIsLoading(true);
+        
+        // Simulate transaction processing
+        setTimeout(() => {
+            setIsLoading(false);
+            if (onConfirm) {
+                onConfirm({
+                    title: 'Transferencia enviada',
+                    subtitle: transaction.recipientName,
+                    amount: -parseFloat(transaction.amount),
+                    type: 'transfer_out',
+                    account: sourceAccount.name
+                });
+            }
+            changeView(ViewState.TRANSFER_SUCCESS);
+        }, 3000);
     };
 
     return (
-        <div className="flex flex-col h-full bg-slate-50">
+        <div className="flex flex-col h-full bg-slate-50 relative">
+             {isLoading && <LoadingOverlay message="Procesando transferencia..." />}
              <Header title="Confirmar transferencia" onBack={() => changeView(ViewState.TRANSFER_FORM)} />
              
              <div className="px-6 pt-4 flex-1 overflow-y-auto no-scrollbar">

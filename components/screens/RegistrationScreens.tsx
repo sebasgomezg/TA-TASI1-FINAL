@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ViewState, UserContextType, SecurityQuestion } from '../../types';
-import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard } from '../ui/Shared';
+import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard, LoadingOverlay } from '../ui/Shared';
 import { CreditCard, Hash, Smartphone, Lock, Check, Mail, X, ArrowRight, ShieldCheck, ChevronRight, User, Phone, MapPin } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -40,6 +40,7 @@ export const RegisterValidateScreen: React.FC<RegisterProps> = ({ changeView, on
     dni: ''
   });
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleNext = () => {
     // Strict validation: Card must be 4532123456789012, DNI 12345678
@@ -48,15 +49,21 @@ export const RegisterValidateScreen: React.FC<RegisterProps> = ({ changeView, on
       return;
     }
     
-    // In a real app, we would validate if the user exists in the bank's database
-    if (onNext) onNext(formData);
-    changeView(ViewState.REGISTER_BIOMETRICS);
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      if (onNext) onNext(formData);
+      changeView(ViewState.REGISTER_BIOMETRICS);
+    }, 2000);
   };
 
   const isFormValid = formData.cardNumber.length === 16 && formData.dni.length === 8;
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white relative">
+      {isLoading && <LoadingOverlay message="Validando datos..." />}
       <Header onBack={() => changeView(ViewState.LOGIN_METHODS)} />
       <RegistrationProgressBar currentStep={0} />
       <div className="px-8 pt-2 flex-1 flex flex-col">
