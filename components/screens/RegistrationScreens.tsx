@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ViewState, UserContextType, SecurityQuestion } from '../../types';
 import { Header, Button, Keypad, PinDots, InputField, ActionCard, VisualCard } from '../ui/Shared';
 import { CreditCard, Hash, Smartphone, Lock, Check, Mail, X, ArrowRight, ShieldCheck, ChevronRight, User, Phone, MapPin } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface RegisterProps {
   changeView: (view: ViewState) => void;
@@ -10,21 +11,21 @@ interface RegisterProps {
 }
 
 const RegistrationProgressBar: React.FC<{ currentStep: number }> = ({ currentStep }) => {
-  const steps = ['Validación', 'Datos', 'Seguridad', 'PIN'];
+  const steps = ['Validación', 'Biometría', 'Datos', 'Seguridad', 'PIN'];
   return (
     <div className="px-8 mb-6">
       <div className="flex justify-between mb-2">
         {steps.map((step, i) => (
-          <span key={i} className={`text-[10px] font-bold uppercase tracking-wider ${i < currentStep ? 'text-indigo-600' : i === currentStep ? 'text-slate-900' : 'text-slate-300'}`}>
+          <span key={i} className={`text-[8px] font-bold uppercase tracking-wider ${i < currentStep ? 'text-indigo-600' : i === currentStep ? 'text-slate-900' : 'text-slate-300'}`}>
             {step}
           </span>
         ))}
       </div>
       <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden flex">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div 
             key={i} 
-            className={`h-full flex-1 transition-all duration-500 ${i < currentStep ? 'bg-indigo-600' : i === currentStep ? 'bg-indigo-400' : 'bg-transparent'} ${i < 3 ? 'border-r border-white/20' : ''}`}
+            className={`h-full flex-1 transition-all duration-500 ${i < currentStep ? 'bg-indigo-600' : i === currentStep ? 'bg-indigo-400' : 'bg-transparent'} ${i < 4 ? 'border-r border-white/20' : ''}`}
           />
         ))}
       </div>
@@ -49,7 +50,7 @@ export const RegisterValidateScreen: React.FC<RegisterProps> = ({ changeView, on
     
     // In a real app, we would validate if the user exists in the bank's database
     if (onNext) onNext(formData);
-    changeView(ViewState.REGISTER_PERSONAL);
+    changeView(ViewState.REGISTER_BIOMETRICS);
   };
 
   const isFormValid = formData.cardNumber.length === 16 && formData.dni.length === 8;
@@ -141,8 +142,8 @@ export const RegisterPersonalScreen: React.FC<RegisterProps> = ({ changeView, on
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
-      <Header onBack={() => changeView(ViewState.REGISTER_VALIDATE)} />
-      <RegistrationProgressBar currentStep={1} />
+      <Header onBack={() => changeView(ViewState.REGISTER_BIOMETRICS)} />
+      <RegistrationProgressBar currentStep={2} />
       <div className="px-8 pt-2 flex-1 flex flex-col">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Crea tu cuenta</h1>
@@ -257,7 +258,7 @@ export const RegisterSecurityScreen: React.FC<RegisterProps> = ({ changeView, on
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
       <Header onBack={() => changeView(ViewState.REGISTER_PERSONAL)} />
-      <RegistrationProgressBar currentStep={2} />
+      <RegistrationProgressBar currentStep={3} />
       <div className="px-8 pt-2 flex-1 flex flex-col">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Seguridad</h1>
@@ -337,7 +338,7 @@ export const RegisterPinScreen: React.FC<RegisterProps> = ({ changeView, onFinis
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
       <Header onBack={() => step === 'confirm' ? setStep('create') : changeView(ViewState.REGISTER_SECURITY)} />
-      <RegistrationProgressBar currentStep={3} />
+      <RegistrationProgressBar currentStep={4} />
       <div className="px-8 pt-2 flex-1 flex flex-col items-center">
         <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-8">
           <Lock className="w-10 h-10" />
@@ -373,6 +374,95 @@ export const RegisterPinScreen: React.FC<RegisterProps> = ({ changeView, onFinis
           <Button onClick={handleFinish} disabled={step === 'create' ? pin.length !== 6 : confirmPin.length !== 6}>
             {step === 'create' ? 'Continuar' : 'Finalizar registro'}
           </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 4. Biometric Validation
+export const RegisterBiometricsScreen: React.FC<RegisterProps> = ({ changeView }) => {
+  const [isScanning, setIsScanning] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleScan = () => {
+    setIsScanning(true);
+    setTimeout(() => {
+      setIsScanning(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        changeView(ViewState.REGISTER_PERSONAL);
+      }, 1500);
+    }, 2500);
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-white overflow-y-auto no-scrollbar">
+      <Header onBack={() => changeView(ViewState.REGISTER_VALIDATE)} />
+      <RegistrationProgressBar currentStep={1} />
+      <div className="px-8 pt-2 flex-1 flex flex-col items-center">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Biometría</h1>
+          <p className="text-slate-500">Valida tu identidad con reconocimiento facial</p>
+        </div>
+
+        <div className="flex-1 flex flex-col items-center justify-center w-full">
+          <div className="relative w-64 h-64 mb-10">
+            {/* Face Frame */}
+            <div className="absolute inset-0 border-2 border-dashed border-indigo-200 rounded-[3rem]"></div>
+            
+            <div className="absolute inset-4 overflow-hidden rounded-[2.5rem] bg-slate-50 flex items-center justify-center">
+              {isSuccess ? (
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-white"
+                >
+                  <Check className="w-12 h-12" strokeWidth={3} />
+                </motion.div>
+              ) : isScanning ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <div className="w-48 h-64 border-2 border-indigo-500 rounded-full opacity-50 animate-pulse"></div>
+                  <motion.div 
+                    className="absolute top-0 left-0 w-full h-1 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)]"
+                    animate={{ top: ['10%', '90%', '10%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <User className="w-32 h-32 text-indigo-100 absolute" />
+                </div>
+              ) : (
+                <User className="w-32 h-32 text-slate-200" />
+              )}
+            </div>
+
+            {/* Corner Accents */}
+            <div className="absolute -top-1 -left-1 w-8 h-8 border-t-4 border-l-4 border-indigo-600 rounded-tl-2xl"></div>
+            <div className="absolute -top-1 -right-1 w-8 h-8 border-t-4 border-r-4 border-indigo-600 rounded-tr-2xl"></div>
+            <div className="absolute -bottom-1 -left-1 w-8 h-8 border-b-4 border-l-4 border-indigo-600 rounded-bl-2xl"></div>
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 border-b-4 border-r-4 border-indigo-600 rounded-br-2xl"></div>
+          </div>
+
+          <div className="text-center px-4">
+            {isSuccess ? (
+              <p className="text-emerald-600 font-bold text-lg">¡Identidad validada!</p>
+            ) : isScanning ? (
+              <p className="text-indigo-600 font-medium animate-pulse">Escaneando rostro...</p>
+            ) : (
+              <p className="text-slate-400 text-sm">Coloca tu rostro dentro del recuadro y asegúrate de tener buena iluminación.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-auto w-full pb-10">
+          {!isSuccess && (
+            <Button 
+              onClick={handleScan} 
+              disabled={isScanning}
+              className={isScanning ? 'opacity-50' : ''}
+            >
+              {isScanning ? 'Procesando...' : 'Iniciar escaneo'}
+            </Button>
+          )}
         </div>
       </div>
     </div>

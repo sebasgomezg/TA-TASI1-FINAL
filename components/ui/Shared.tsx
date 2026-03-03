@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowLeft, Battery, Signal, Wifi, ChevronRight, X, Loader2 } from 'lucide-react';
+import { ArrowLeft, Battery, Signal, Wifi, ChevronRight, X, Loader2, Home, ArrowRightLeft, CreditCard, User, LayoutGrid, Zap } from 'lucide-react';
+import { ViewState } from '../../types';
 
 // --- Status Bar ---
 export const StatusBar: React.FC = () => {
@@ -224,3 +225,41 @@ export const ActionCard: React.FC<{
     <ChevronRight className="w-5 h-5 text-slate-400" />
   </div>
 );
+
+// --- Bottom Navigation Bar ---
+interface BottomNavProps {
+  currentView: ViewState;
+  changeView: (view: ViewState) => void;
+}
+
+export const BottomNav: React.FC<BottomNavProps> = ({ currentView, changeView }) => {
+  const navItems = [
+    { view: ViewState.DASHBOARD, icon: <Home className="w-6 h-6" />, label: 'Inicio' },
+    { view: ViewState.TRANSFER_MENU, icon: <ArrowRightLeft className="w-6 h-6" />, label: 'Transferir' },
+    { view: ViewState.PAYMENT_MENU, icon: <Zap className="w-6 h-6" />, label: 'Pagar' },
+    { view: ViewState.MOVEMENTS_LIST, icon: <LayoutGrid className="w-6 h-6" />, label: 'Movimientos' },
+    { view: ViewState.EDIT_PROFILE, icon: <User className="w-6 h-6" />, label: 'Perfil' },
+  ];
+
+  return (
+    <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-3 pb-8 flex justify-between items-center z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+      {navItems.map((item) => {
+        const isActive = currentView === item.view;
+        return (
+          <button
+            key={item.view}
+            onClick={() => changeView(item.view)}
+            className={`flex flex-col items-center gap-1 transition-all duration-300 ${isActive ? 'text-indigo-600 scale-110' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <div className={`p-1 rounded-xl transition-colors ${isActive ? 'bg-indigo-50' : 'bg-transparent'}`}>
+              {item.icon}
+            </div>
+            <span className={`text-[10px] font-bold uppercase tracking-tighter ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};

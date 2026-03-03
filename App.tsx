@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, TransactionDetails, UserContextType, PaymentDetails, MovementItem, SecurityQuestion, Favorite } from './types';
-import { StatusBar } from './components/ui/Shared';
+import { StatusBar, BottomNav } from './components/ui/Shared';
 import { 
   LoginMethodsScreen, 
   LoginCardScreen,
@@ -18,7 +18,8 @@ import {
   RegisterValidateScreen,
   RegisterPersonalScreen,
   RegisterSecurityScreen,
-  RegisterPinScreen
+  RegisterPinScreen,
+  RegisterBiometricsScreen
 } from './components/screens/RegistrationScreens';
 import { DashboardScreen } from './components/screens/DashboardScreen';
 import { 
@@ -282,6 +283,37 @@ const App: React.FC = () => {
 
   // Helper for view rendering
   const renderView = () => {
+    const showBottomNav = [
+      ViewState.DASHBOARD,
+      ViewState.MOVEMENTS_LIST,
+      ViewState.TRANSFER_MENU,
+      ViewState.PAYMENT_MENU,
+      ViewState.EDIT_PROFILE,
+      ViewState.TRAVEL_MAIN
+    ].includes(currentView);
+
+    return (
+      <div className="h-full flex flex-col">
+        <div className={`flex-1 overflow-hidden relative ${showBottomNav ? 'pb-20' : ''}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentView}
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              transition={{ duration: 0.2 }}
+              className="h-full"
+            >
+              {renderViewContent()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        {showBottomNav && <BottomNav currentView={currentView} changeView={setCurrentView} />}
+      </div>
+    );
+  };
+
+  const renderViewContent = () => {
     switch (currentView) {
       // Auth Flow
       case ViewState.LOGIN_METHODS:
@@ -328,6 +360,8 @@ const App: React.FC = () => {
         return <RegisterSecurityScreen changeView={setCurrentView} onNext={(qs) => setUser(prev => ({ ...prev, securityQuestions: qs }))} />;
       case ViewState.REGISTER_PIN:
         return <RegisterPinScreen changeView={setCurrentView} onFinish={handleRegister} />;
+      case ViewState.REGISTER_BIOMETRICS:
+        return <RegisterBiometricsScreen changeView={setCurrentView} />;
       case ViewState.REGISTER_SUCCESS:
         return <ForgotPinSuccessScreen changeView={setCurrentView} isRegister />;
       
@@ -470,18 +504,7 @@ const App: React.FC = () => {
 
         {/* Content Area */}
         <div className="flex-1 overflow-hidden relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentView}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="h-full"
-            >
-              {renderView()}
-            </motion.div>
-          </AnimatePresence>
+          {renderView()}
         </div>
 
         {/* Bottom Home Indicator (iOS style) */}

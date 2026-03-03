@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ViewState, UserContextType, MovementItem } from '../../types';
 import { StatusBar, ActionCard } from '../ui/Shared';
-import { Plus, Calendar, List, User, LogOut, Plane, ChevronRight, CreditCard, Users, Smartphone, LayoutGrid, ArrowDownLeft, ArrowUpRight, Zap } from 'lucide-react';
+import { Plus, Calendar, List, User, LogOut, Plane, ChevronRight, CreditCard, Users, Smartphone, LayoutGrid, ArrowDownLeft, ArrowUpRight, Zap, ArrowRightLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface DashboardProps {
@@ -67,13 +67,6 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
             <p className="text-indigo-200 text-sm">Bienvenido de nuevo</p>
           </div>
           <div className="flex gap-2">
-            <button 
-              onClick={() => changeView(ViewState.EDIT_PROFILE)}
-              className="w-10 h-10 bg-indigo-500 rounded-full flex items-center justify-center hover:bg-indigo-400 transition-colors cursor-pointer"
-              title="Editar Perfil"
-            >
-              <User className="w-5 h-5" />
-            </button>
             <button 
               onClick={() => changeView(ViewState.LOGIN_METHODS)}
               className="w-10 h-10 bg-red-500/20 border border-red-400/30 rounded-full flex items-center justify-center hover:bg-red-500/30 transition-colors cursor-pointer"
@@ -151,7 +144,7 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
                 className="flex flex-col items-center gap-3 bg-white p-4 rounded-2xl shadow-sm hover:bg-slate-50 transition-colors"
             >
                 <div className="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                    <Plus className="w-7 h-7" />
+                    <ArrowRightLeft className="w-7 h-7" />
                 </div>
                 <div className="text-center">
                     <span className="block font-bold text-slate-900 text-sm">Transferir</span>
@@ -163,7 +156,7 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
                 className="flex flex-col items-center gap-3 bg-white p-4 rounded-2xl shadow-sm hover:bg-slate-50 transition-colors"
             >
                 <div className="w-14 h-14 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center">
-                    <Calendar className="w-7 h-7" />
+                    <Zap className="w-7 h-7" />
                 </div>
                 <div className="text-center">
                     <span className="block font-bold text-slate-900 text-sm">Pagar</span>
@@ -175,7 +168,7 @@ export const DashboardScreen: React.FC<DashboardProps> = ({ user, changeView, se
                 className="flex flex-col items-center gap-3 bg-white p-4 rounded-2xl shadow-sm hover:bg-slate-50 transition-colors"
             >
                 <div className="w-14 h-14 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                    <List className="w-7 h-7" />
+                    <LayoutGrid className="w-7 h-7" />
                 </div>
                 <div className="text-center">
                     <span className="block font-bold text-slate-900 text-sm leading-tight">Movimientos</span>
