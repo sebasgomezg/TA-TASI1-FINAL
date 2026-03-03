@@ -64,10 +64,10 @@ const App: React.FC = () => {
   // App Data State
   const [user, setUser] = useState<UserContextType>({
     name: 'Sebastian',
-    fullName: 'SEBASTIAN ARMANDO GOMEZ GARAY',
+    fullName: 'Sebastian armando gomez garay',
     email: 'sgomezg@pucp.edu.pe', 
     phone: '987654321',
-    address: 'AV.UNIVERSITARIA 1801 SAN MIGUEL',
+    address: 'Av. Universitaria 1801 San Miguel',
     dni: '12345678',
     cardNumber: '4532123456789012',
     pin: '123456', // Default PIN for demo
@@ -148,10 +148,18 @@ const App: React.FC = () => {
 
   // Handler to update user profile data
   const handleUpdateUser = (field: keyof UserContextType, value: any) => {
-    setUser(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setUser(prev => {
+      let updated = { ...prev, [field]: value };
+      if (field === 'fullName' && typeof value === 'string') {
+        const rawName = value.trim();
+        if (rawName) {
+          const formatted = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+          const nick = formatted.split(' ')[0];
+          updated = { ...updated, fullName: formatted, name: nick };
+        }
+      }
+      return updated;
+    });
   };
 
   const handleAddFavorite = (favorite: Omit<Favorite, 'id'>) => {
@@ -250,7 +258,25 @@ const App: React.FC = () => {
   };
 
   const handleRegister = (data: Partial<UserContextType>) => {
-    setUser(prev => ({ ...prev, ...data }));
+    setUser(prev => {
+      const updatedUser = { ...prev, ...data };
+      const rawName = (updatedUser.fullName || '').trim();
+      
+      if (rawName) {
+        // Format: First letter uppercase, rest lowercase
+        const formattedFullName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase();
+        // Nick: First section of the name
+        const nick = formattedFullName.split(' ')[0];
+        
+        return {
+          ...updatedUser,
+          fullName: formattedFullName,
+          name: nick
+        };
+      }
+      
+      return updatedUser;
+    });
     setCurrentView(ViewState.REGISTER_SUCCESS);
   };
 

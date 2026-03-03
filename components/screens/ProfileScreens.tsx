@@ -16,7 +16,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
   const [error, setError] = useState<string | null>(null);
 
   const initials = user.name.slice(0, 2).toUpperCase();
-  const firstName = user.name.toUpperCase();
+  const firstName = user.name;
   
   // Logic to mask the full name consistently based on the user data
   const maskedFullName = user.fullName
@@ -29,11 +29,11 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
 
   // Masking helpers
   const getMaskedEmail = (email: string) => {
-      if (showData) return email.toUpperCase();
+      if (showData) return email;
       const [local, domain] = email.split('@');
       if (!local || !domain) return email;
       const maskedLocal = local.slice(0, 2) + '*'.repeat(10);
-      return `${maskedLocal}@${domain}`.toUpperCase();
+      return `${maskedLocal}@${domain}`;
   };
 
   const getMaskedPhone = (phone: string) => {
@@ -45,12 +45,12 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
   };
 
   const getMaskedAddress = (addr: string) => {
-      if (showData) return addr.toUpperCase();
+      if (showData) return addr;
       const parts = addr.split(' ');
       if (parts.length > 2) {
-          return `${parts[0]} ${parts[1]} ${'*'.repeat(20)}`.toUpperCase();
+          return `${parts[0]} ${parts[1]} ${'*'.repeat(20)}`;
       }
-      return `${addr.slice(0, 6)}*********************`.toUpperCase();
+      return `${addr.slice(0, 6)}*********************`;
   };
 
   const startEditing = (field: keyof UserContextType, currentValue: string) => {
@@ -121,7 +121,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
                 
                 <div className="flex items-center gap-2 mb-2">
                     <h2 className="text-slate-900 text-lg font-bold tracking-wide">{firstName}</h2>
-                    <Pencil className="w-4 h-4 text-orange-500 cursor-pointer" onClick={() => startEditing('name', user.name)} />
+                    <Pencil className="w-4 h-4 text-orange-500 cursor-pointer" onClick={() => startEditing('fullName', user.fullName)} />
                 </div>
                 
                 <p className="text-xs text-slate-400 tracking-widest font-mono px-6 text-center break-words w-full">
@@ -140,7 +140,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
                         </div>
                         <div className="flex-1 overflow-hidden">
                             <p className="text-slate-900 font-bold text-sm mb-1">Correo electrónico</p>
-                            <p className="text-slate-500 text-sm truncate uppercase font-medium">
+                            <p className="text-slate-500 text-sm truncate font-medium">
                                 {getMaskedEmail(user.email)}
                             </p>
                         </div>
@@ -178,7 +178,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
                         </div>
                         <div className="flex-1">
                             <p className="text-slate-900 font-bold text-sm mb-1">Dirección de domicilio</p>
-                            <p className="text-slate-500 text-sm font-medium uppercase break-words">
+                            <p className="text-slate-500 text-sm font-medium break-words">
                                 {getMaskedAddress(user.address)}
                             </p>
                         </div>
@@ -229,7 +229,7 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
                 <div className="bg-white w-full rounded-3xl p-6 shadow-2xl animate-in zoom-in-95 duration-200">
                     <div className="flex justify-between items-center mb-6">
                         <h3 className="text-xl font-bold text-slate-900">
-                            Editar {editingField === 'email' ? 'Correo' : editingField === 'phone' ? 'Celular' : editingField === 'address' ? 'Dirección' : 'Nombre'}
+                            Editar {editingField === 'email' ? 'Correo' : editingField === 'phone' ? 'Celular' : editingField === 'address' ? 'Dirección' : 'Nombre Completo'}
                         </h3>
                         <button 
                             onClick={() => setEditingField(null)}
@@ -249,6 +249,11 @@ export const EditProfileScreen: React.FC<ProfileProps> = ({ changeView, user, on
                                 if (editingField === 'phone') {
                                     val = val.replace(/\D/g, ''); // Remove non-digits
                                     if (val.length > 9) val = val.slice(0, 9);
+                                }
+
+                                // Format Name in real-time
+                                if (editingField === 'fullName' && val.length > 0) {
+                                    val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
                                 }
 
                                 setTempValue(val);

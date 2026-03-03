@@ -156,7 +156,10 @@ export const RegisterPersonalScreen: React.FC<RegisterProps> = ({ changeView, on
               placeholder="Ej: Juan Pérez" 
               value={formData.fullName}
               onChange={e => {
-                const val = e.target.value.replace(/[0-9]/g, '');
+                let val = e.target.value.replace(/[0-9]/g, '');
+                if (val.length > 0) {
+                  val = val.charAt(0).toUpperCase() + val.slice(1).toLowerCase();
+                }
                 setFormData({...formData, fullName: val});
                 if (errors.fullName) validateField('fullName', val);
               }}
